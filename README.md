@@ -1,4 +1,4 @@
-# Hyprland(Lua) Dotfiles
+# Hyprland (Lua) Dotfiles
 
 A complete Hyprland(Lua) configuration with Quickshell, custom themes, and essential tools for a beautiful Wayland desktop experience.
 
@@ -13,48 +13,99 @@ Compared to the original repository, this build includes the following pre-confi
 * **Vietnamese Input Method**: Pre-configured `fcitx5` for seamless Vietnamese typing.
 * **Bluetooth Support**: Native bluetooth modules enabled out-of-the-box.
 * **Audio Control**: Fully integrated speaker and volume control modules.
+* **Papirus-Dark Icons**: Installed and applied automatically by the installer.
+* **One-line `curl` Installer**: Install everything with a single command.
 * **Additional System Updates**: Includes performance optimizations, enhanced visual transitions, and key stability fixes for the core modules.
 
+## 💻 Requirements
 
-## Requirements
+- **Distro**: Arch Linux (or Arch-based: Manjaro, EndeavourOS, CachyOS, etc.)
+- **Wayland** compositor with **Hyprland (Lua)** — installed automatically
+- **Internet connection** and at least 4 GB free disk space
 
-### Minimum Requirements
+The installer automatically sets up the base system utilities (`git`, `base-devel`), Hyprland, Quickshell and all packages listed below.
 
-- **Distro**: Arch Linux (or Arch-based: Manjaro, EndeavourOS, CachyOS, etc.) or NixOS
+## 🔧 Installation
 
-### Dependencies
+> Supported: Arch Linux and Arch-based distros (Manjaro, EndeavourOS, CachyOS, …). Run as a **normal user** — the installer calls `sudo` by itself when needed.
 
-The setup script will automatically install:
-- Base system utilities (`git`, `base-devel`)
-- Wayland compositor (Hyprland Lua)
-- All required packages listed below
+### Method 1 — One-line install with `curl` (recommended)
 
-## Installation
+```bash
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash
+```
 
-### For Arch Linux
+The installer lives in this repository (`install/`). It downloads the dotfiles (`.config`), wallpapers (`Pictures/Wallpapers`) and the Cartoon Shell config ([cartoon-shell_mod](https://github.com/lesang2312/cartoon-shell_mod)) for you, and opens an interactive menu (↑/↓ move · Space toggle · `a` all · `n` none · Enter start · `q` quit). Useful options:
 
-Clone and run the setup script:
+```bash
+# Unattended install, skip the heavy extra fonts
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash -s -- --yes --skip fonts-extra
+
+# Preview only, nothing is changed
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash -s -- --dry-run
+
+# Install only Cartoon Shell (+ required core packages)
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash -s -- --only shell
+```
+
+| Option | Description |
+|--------|-------------|
+| `-y, --yes` | Run unattended with default choices |
+| `--dry-run` | Print the commands without changing the system |
+| `--only a,b` / `--skip a,b` | Install only / skip the given components, e.g. `--skip dotfiles,wallpapers` (`--list` to see them) |
+| `--restore [name]` | Restore a previous backup |
+| `--uninstall` | Remove copied files (installed packages are kept) |
+
+### Method 2 — Clone and run `setup.sh`
 
 ```bash
 cd ~
-git clone https://github.com/lesang2312/dotfiles-hyprland
-cd dotfiles-hyprland
+git clone https://github.com/lesang2312/dotfiles-hyprland_mod
+cd dotfiles-hyprland_mod
 chmod +x setup.sh
 ./setup.sh
+```
+
+### 🪟 Choosing the compositor (Hyprland / niri / both)
+
+In the menu, tick **Hyprland**, **niri**, or both (Hyprland is ticked by default). The installer then installs only the packages **and copies only the config folders** of what you picked:
+
+| Selection | Packages | Config copied to `~/.config` |
+|-----------|----------|------------------------------|
+| Hyprland | `hyprland`, `xdg-desktop-portal-hyprland` | `hypr/` + shared configs |
+| niri | `niri`, `xwayland-satellite`, `xdg-desktop-portal-gnome/gtk`, `gnome-keyring` | `niri/` + shared configs |
+| Both | all of the above | `hypr/`, `niri/` + shared configs |
+
+Shared configs are `fish/`, `kitty/`, `matugen/`, `gtk-3.0/`, `gtk-4.0/`, `starship.toml`, `xdg-desktop-portal/`. Existing files are backed up first.
+
+```bash
+# Unattended: niri only
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash -s -- --yes --only niri,dotfiles,wallpapers,aur,icons,userdirs,audio,bluetooth,input,fonts
+
+# Unattended: both
+curl -fsSL https://raw.githubusercontent.com/lesang2312/dotfiles-hyprland_mod/main/install/get.sh | bash -s -- --yes --skip fonts-extra --only hyprland,niri
+```
+
+> Already have your own setup? Add `--skip dotfiles` to leave `~/.config` untouched. Use `--list` to see all component ids.
+
+### 🎨 Icon theme: Papirus-Dark
+
+Both methods install `papirus-icon-theme` and set **Papirus-Dark** as the default icon theme automatically (component `icons`; skip it with `--skip icons`). To apply it manually:
+
+```bash
+sudo pacman -S --needed papirus-icon-theme
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 ```
 
-
-The script will:
-1. Check sudo permissions
-2. Backup your existing config (if any)
-3. Copy new configuration files
-4. Update your system
-5. Install all required packages
-6. Set up yay AUR helper (if not installed)
-7. Install AUR packages
-8. Clone Quickshell configuration
-9. Ask if you want to reboot
+The installer will:
+1. Check your system (distro, sudo, internet, disk space)
+2. Back up your existing config (if any)
+3. Update your system and install all required packages
+4. Set up the `yay` AUR helper (if not installed) and install AUR packages
+5. Install and apply the Papirus-Dark icon theme
+6. Configure audio, Bluetooth and the Vietnamese input method
+7. Clone the Cartoon Shell (Quickshell) configuration
+8. Ask if you want to reboot
 
 ## Installed Packages
 
@@ -94,6 +145,8 @@ The script will:
 | `fcitx5-qt` | Qt IM module for Fcitx5 |
 | `fcitx5-configtool` | Graphical configuration tool for Fcitx5 |
 | `fcitx5-unikey` | Vietnamese Unikey input method engine for Fcitx5 |
+| `papirus-icon-theme` | Pixel-perfect icon theme (**Papirus-Dark** is set as default) |
+| `glib2`, `dconf`, `gsettings-desktop-schemas` | `gsettings` support used to apply the icon theme |
 
 ### AUR Packages (yay)
 
@@ -101,7 +154,6 @@ The script will:
 |---------|-------------|
 | `quickshell-git` | Modern shell interface framework based on Qt/QML |
 | `sysstat` | System performance monitoring tools (used for bar widgets) |
-| `papirus-icon-theme` | Pixel-perfect icon theme for Linux |
 | `otf-comicshanns-nerd` | Comic Shanns font patched with Nerd Font icons |
 | `cava` | Console-based Audio Visualizer |
 | `ttf-material-symbols-variable-git` | Google's Material Symbols font for modern UI icons |
@@ -112,7 +164,7 @@ The script will:
 
 | Component | Source |
 |-----------|--------|
-| Quickshell Theme | [cartoon-shell](https://github.com/lesang2312/cartoon-shell.git) |
+| Quickshell Theme | [cartoon-shell](https://github.com/lesang2312/cartoon-shell_mod.git) |
 
 ## Backup
 
@@ -144,7 +196,7 @@ You can easily modify, add, or change all system shortcuts, workspace management
 
 - Hyprland: [https://hyprland.org](https://hyprland.org)
 - Quickshell: [https://quickshell.outfoxxed.me](https://quickshell.outfoxxed.me)
-- Cartoon Shell: [https://github.com/lesang2312/cartoon-shell](https://github.com/lesang2312/cartoon-shell)
+- Cartoon Shell: [https://github.com/lesang2312/cartoon-shell](https://github.com/lesang2312/cartoon-shell_mod)
 
 ## License
 
