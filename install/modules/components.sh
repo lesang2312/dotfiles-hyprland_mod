@@ -34,6 +34,7 @@ register_all_components() {
     register_component dotfiles      comp_dotfiles      "Dotfiles (online)"       "dotfiles-hyprland_mod/.config → ~/.config"             1 0 nhẹ
     register_component wallpapers    comp_wallpapers    "Hình nền (online)"       "Pictures/Wallpapers → ~/Pictures/Wallpapers"          1 0 vừa
     register_component shell         comp_shell         "Quickshell cartoon-shell" "git clone vào ~/.config/quickshell"   1 1 nhẹ
+    register_component sddm          comp_sddm          "Màn hình đăng nhập SDDM" "sddm + theme cartoon (chào mừng, đồng bộ hình nền)" 1 0 nhẹ
 
     # Nguồn online tuỳ chọn: chưa khai báo URL thì khoá thành phần
     [[ -n "$DOTFILES_REPO_URL" ]]    || _comp_unavailable dotfiles

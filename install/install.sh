@@ -44,7 +44,7 @@ MODULES_DIR="$INSTALL_DIR/modules"
 
 # shellcheck source=install/app.conf
 source "$INSTALL_DIR/app.conf"
-for m in core pm deps state migrate deploy version config service ui components uninstall; do
+for m in core pm deps state migrate deploy version config service sddm ui components uninstall; do
     # shellcheck source=/dev/null
     source "$MODULES_DIR/$m.sh"
 done

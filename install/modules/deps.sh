@@ -57,6 +57,13 @@ AUR_PKGS=(
     "qt6-5compat"
 )
 
+# ---- Màn hình đăng nhập SDDM (theme cartoon cần Qt 6 QtQuick/MultiEffect + SVG) ----
+SDDM_PKGS=(
+    "sddm"
+    "qt6-declarative"
+    "qt6-svg"
+)
+
 # ---- Icon theme (Papirus-Dark) ----
 ICON_PKGS=(
     "papirus-icon-theme"

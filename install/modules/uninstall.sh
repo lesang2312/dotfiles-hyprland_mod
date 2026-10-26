@@ -9,6 +9,8 @@ do_uninstall() {
     printf '%sCác mục sẽ bị xoá:%s\n' "$C_BOLD" "$C_RESET"
     sed 's/^/  - /' "$MANIFEST_FILE"
     [[ -d "$BIGBLUE_DIR" ]] && printf '  - %s\n' "$BIGBLUE_DIR"
+    [[ -d "$SDDM_THEMES_DIR/$SDDM_THEME_NAME" ]] && printf '  - %s\n' "$SDDM_THEMES_DIR/$SDDM_THEME_NAME"
+    [[ -f "$SDDM_CONF_FILE" ]] && printf '  - %s\n' "$SDDM_CONF_FILE"
     printf '\n%sCác gói (pacman/AUR) sẽ được GIỮ NGUYÊN.%s\n\n' "$C_DIM" "$C_RESET"
     confirm "Tiếp tục gỡ?" n || { log_info "Đã huỷ."; return 0; }
 
@@ -24,6 +26,14 @@ do_uninstall() {
     if [[ -d "$BIGBLUE_DIR" ]]; then
         run sudo rm -rf -- "$BIGBLUE_DIR" || true
         run sudo fc-cache -f || true
+    fi
+
+    # SDDM: gỡ theme + file cấu hình của ta (gói sddm và dịch vụ được giữ nguyên)
+    if [[ -d "$SDDM_THEMES_DIR/$SDDM_THEME_NAME" || -f "$SDDM_CONF_FILE" ]]; then
+        run sudo rm -rf -- "${SDDM_THEMES_DIR:?}/${SDDM_THEME_NAME:?}" "$SDDM_CONF_FILE" || true
+        if [[ -f /etc/sddm.conf.cartoon-shell.bak ]]; then
+            run sudo mv -f /etc/sddm.conf.cartoon-shell.bak /etc/sddm.conf || true
+        fi
     fi
 
     # bản cũ nhất = trạng thái của bạn trước khi cài lần đầu

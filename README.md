@@ -97,6 +97,18 @@ sudo pacman -S --needed papirus-icon-theme
 gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 ```
 
+### 🔐 Login screen: SDDM (automatic)
+
+The installer sets up **SDDM** with the **cartoon** theme by default — no selection needed (component `sddm`; skip it with `--skip sddm`). It runs right after Cartoon Shell is cloned and:
+
+1. installs `sddm`, `qt6-declarative`, `qt6-svg`;
+2. copies the theme from the Cartoon Shell repo (`sddm/themes/cartoon`) to `/usr/share/sddm/themes/cartoon`;
+3. sets it as the default theme (`/etc/sddm.conf.d/10-cartoon-shell.conf`; `Current=` in `/etc/sddm.conf` is updated too if present);
+4. enables `sddm.service` (replacing any other display manager; takes effect after the next reboot);
+5. seeds the login background with your first wallpaper — afterwards Cartoon Shell keeps it in sync with your current wallpaper (turn off with `wallpaper.syncSddm = false` in the shell `settings.json`).
+
+The theme itself (welcome splash + login card) lives in the **Cartoon Shell** repository, not in this one. Customize colors/language in `theme.conf.user` inside the theme folder. `--uninstall` removes the theme and config (the `sddm` package is kept).
+
 The installer will:
 1. Check your system (distro, sudo, internet, disk space)
 2. Back up your existing config (if any)
@@ -105,7 +117,8 @@ The installer will:
 5. Install and apply the Papirus-Dark icon theme
 6. Configure audio, Bluetooth and the Vietnamese input method
 7. Clone the Cartoon Shell (Quickshell) configuration
-8. Ask if you want to reboot
+8. Install the SDDM login screen with the cartoon theme
+9. Ask if you want to reboot
 
 ## Installed Packages
 
@@ -146,6 +159,7 @@ The installer will:
 | `fcitx5-configtool` | Graphical configuration tool for Fcitx5 |
 | `fcitx5-unikey` | Vietnamese Unikey input method engine for Fcitx5 |
 | `papirus-icon-theme` | Pixel-perfect icon theme (**Papirus-Dark** is set as default) |
+| `sddm`, `qt6-declarative`, `qt6-svg` | Login manager and Qt 6 modules used by the **cartoon** SDDM theme |
 | `glib2`, `dconf`, `gsettings-desktop-schemas` | `gsettings` support used to apply the icon theme |
 
 ### AUR Packages (yay)
