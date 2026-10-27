@@ -74,6 +74,8 @@
         wl-clipboard
         grim
         slurp
+        wf-recorder
+        libnotify
 
         adw-gtk3
         papirus-icon-theme

@@ -97,7 +97,7 @@ sudo pacman -Syu --noconfirm
 log_info "Đang cài đặt các gói phần mềm hệ thống..."
 sudo pacman -S --needed --noconfirm \
   base-devel hyprland kitty brightnessctl wl-clipboard noto-fonts-cjk \
-  nautilus grim slurp xdg-desktop-portal-hyprland jq matugen starship \
+  nautilus grim slurp wf-recorder libnotify xdg-desktop-portal-hyprland jq matugen starship \
   fish adw-gtk-theme bc ttf-nerd-fonts-symbols qt6-multimedia pipewire \
   pipewire-pulse pipewire-alsa pipewire-jack wireplumber pavucontrol \
   bluez bluez-utils blueman fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool \

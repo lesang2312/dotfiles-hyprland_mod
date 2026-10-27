@@ -1,7 +1,7 @@
 // #######################################################################################
 // NIRI CONFIG — chuyển đổi từ bộ Hyprland (Lua) sang KDL
 // #######################################################################################
-spawn-at-startup "swaybg" "-i" "/home/linux-sieu-cap-pro-cua-le/Pictures/Wallpapers/1384235.jpg" "-m" "fill"
+spawn-sh-at-startup "swaybg -i \"$HOME/Pictures/Wallpapers/1384235.jpg\" -m fill"
 // =======================================================================================
 // INPUT
 // =======================================================================================
@@ -53,7 +53,7 @@ cursor {
 // AUTOSTART (Gộp chung khởi động fcitx5, swaybg và Quickshell)
 // =======================================================================================
 spawn-at-startup "fcitx5" "-d" "--replace"
-//spawn-at-startup "swaybg" "-i" "/home/linux-sieu-cap-pro-cua-le/Pictures/Wallpapers/1384235.jpg" "-m" "fill"
+//spawn-sh-at-startup "swaybg -i \"$HOME/Pictures/Wallpapers/1384235.jpg\" -m fill"
 spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP=Niri && systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user restart xdg-desktop-portal-gtk xdg-desktop-portal"
 spawn-sh-at-startup "qs -p ~/.config/quickshell/cartoon-shell"
 
@@ -203,15 +203,10 @@ binds {
         spawn-sh "brightnessctl -e4 -n2 set 5%-; qs ipc --path ~/.config/quickshell/cartoon-shell call brightness set \"$(awk \"BEGIN {print $(brightnessctl g)/$(brightnessctl m)}\")\"";
     }
 
-    Alt+A {
-        spawn-sh "mkdir -p \"$HOME/Screenshots\" && FILE=\"$HOME/Screenshots/screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png\" && grim -g \"$(slurp)\" \"$FILE\" && wl-copy < \"$FILE\"";
-    }
-    Alt+Shift+A {
-        spawn-sh "pidof wf-recorder && pkill -x wf-recorder || { mkdir -p \"$HOME/Screenshots\" && wf-recorder -r 60 -x yuv444p -p preset=ultrafast -p crf=5 -g \"$(slurp)\" -f \"$HOME/Screenshots/recording_$(date +'%Y-%m-%d_%H-%M-%S').mp4\"; }";
-    }
-    Print {
-        spawn-sh "mkdir -p \"$HOME/Screenshots\" && FILE=\"$HOME/Screenshots/screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png\" && grim \"$FILE\" && wl-copy < \"$FILE\"";
-    }
+    // Chụp/quay màn hình → ảnh lưu vào ~/Pictures/Screenshots, video vào ~/Videos/Recordings (xem .config/scripts/screenshot.sh)
+    Alt+A { spawn-sh "$HOME/.config/scripts/screenshot.sh area"; }
+    Alt+Shift+A { spawn-sh "$HOME/.config/scripts/screenshot.sh record"; }
+    Print { spawn-sh "$HOME/.config/scripts/screenshot.sh full"; }
 
     Mod+O repeat=false { toggle-overview; }
 

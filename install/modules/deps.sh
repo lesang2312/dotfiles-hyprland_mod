@@ -21,6 +21,8 @@ REQUIRED_PKGS=(
     "nautilus"
     "grim"
     "slurp"
+    "wf-recorder"
+    "libnotify"
     "jq"
     "matugen"
     "starship"
