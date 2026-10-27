@@ -147,8 +147,90 @@ end
 -- corresponding hl.dsp.* action. Add new action types here — you
 -- should not need to touch keybindings.lua anymore.
 --------------------------------------------------------------------
+-- Route recorder commands through the same ~/Screenshots directory used by Niri.
+-- The Hyprland shortcut definitions live in Cartoon Shell's keybinds.json, which
+-- is loaded at runtime and is not bundled in this repository archive. Normalize
+-- wf-recorder/wl-screenrec commands here so existing shortcuts and options stay intact.
+local function prepareScreenRecordingCommand(command)
+	if type(command) ~= "string" then return command end
+	if not command:find("wf%-recorder") and not command:find("wl%-screenrec") then
+		return command
+	end
+
+	local outputDir = "$HOME/Screenshots"
+	command = command
+		:gsub("%$%{HOME%}/Videos/Recordings", outputDir)
+		:gsub("%$HOME/Videos/Recordings", outputDir)
+		:gsub("~/Videos/Recordings", outputDir)
+		:gsub("%$%{HOME%}/Recordings", outputDir)
+		:gsub("%$HOME/Recordings", outputDir)
+		:gsub("~/Recordings", outputDir)
+		:gsub("%$%{HOME%}/Videos", outputDir)
+		:gsub("%$HOME/Videos", outputDir)
+		:gsub("~/Videos", outputDir)
+		:gsub("%$XDG_VIDEOS_DIR", outputDir)
+
+	-- Running from the destination directory also handles relative -f filenames,
+	-- independent of Hyprland's current working directory. The subshell keeps the
+	-- caller's working directory unchanged and preserves the original command logic.
+	return '(mkdir -p "' .. outputDir .. '" && cd "' .. outputDir .. '" && { ' .. command .. '; })'
+end
+
+-- Route screenshot commands to ~/Screenshots, regardless of the compositor's
+-- current working directory. Keep the original capture options and clipboard
+-- behavior; when grim normally streams the image to wl-copy, save it first.
+local function prepareScreenshotCommand(command)
+	if type(command) ~= "string" then return command end
+	local isScreenshotCommand = command:find("grim", 1, true)
+		or command:find("hyprshot", 1, true)
+		or command:find("grimblast", 1, true)
+	if not isScreenshotCommand then return command end
+
+	local outputDir = "$HOME/Screenshots"
+
+	-- Preserve clipboard functionality while also saving common grim-to-wl-copy
+	-- screenshot shortcuts to a uniquely named PNG.
+	command = command:gsub("(grim.-)%s+%-%s*|%s*(wl%-copy[^;&|]*)", function(grimCommand, clipboardCommand)
+		return 'FILE="' .. outputDir .. '/screenshot_$(date +\'%Y-%m-%d_%H-%M-%S\').png" && '
+			.. grimCommand .. ' "$FILE" && ' .. clipboardCommand .. ' < "$FILE"'
+	end, 1)
+
+	-- Redirect common screenshot folders (including the former misspelling) and
+	-- relative output paths into the same directory.
+	command = command
+		:gsub("%$%{HOME%}/Pictures/Screenshots", outputDir)
+		:gsub("%$HOME/Pictures/Screenshots", outputDir)
+		:gsub("~/Pictures/Screenshots", outputDir)
+		:gsub("%$%{HOME%}/Screenshorts", outputDir)
+		:gsub("%$HOME/Screenshorts", outputDir)
+		:gsub("~/Screenshorts", outputDir)
+		:gsub("%$%{HOME%}/Pictures/", outputDir .. "/")
+		:gsub("%$HOME/Pictures/", outputDir .. "/")
+		:gsub("~/Pictures/", outputDir .. "/")
+		:gsub("%$XDG_PICTURES_DIR", outputDir)
+
+	-- Hyprshot supports an explicit output folder. Normalize it when present, or
+	-- add it for the default form so output does not depend on its default folder.
+	if command:find("hyprshot", 1, true) then
+		if command:find("%-%-output%-folder%s+%S+") then
+			command = command:gsub("%-%-output%-folder%s+%S+", '--output-folder "' .. outputDir .. '"', 1)
+		elseif command:find("%-o%s+%S+") then
+			command = command:gsub("%-o%s+%S+", '-o "' .. outputDir .. '"', 1)
+		else
+			command = command:gsub("(hyprshot)", '%1 -o "' .. outputDir .. '"', 1)
+		end
+	end
+
+	-- Create and enter the destination directory in a subshell. This also makes
+	-- filenames such as screenshot.png (relative paths) land in ~/Screenshots.
+	return '(mkdir -p "' .. outputDir .. '" && cd "' .. outputDir .. '" && export XDG_PICTURES_DIR="' .. outputDir .. '" && { ' .. command .. '; })'
+end
+
 local dispatch = {
-	exec_cmd = function(args) return hl.dsp.exec_cmd(args[1]) end,
+	exec_cmd = function(args)
+		local command = prepareScreenshotCommand(args[1])
+		return hl.dsp.exec_cmd(prepareScreenRecordingCommand(command))
+	end,
 	["window.close"] = function() return hl.dsp.window.close() end,
 	["window.float"] = function(args) return hl.dsp.window.float(args[1]) end,
 	["window.pseudo"] = function() return hl.dsp.window.pseudo() end,
